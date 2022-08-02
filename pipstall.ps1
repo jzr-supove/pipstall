@@ -27,7 +27,25 @@ elseif ($args.Length -eq 1 -and $args[0] -match '^-') {
 } 
 else {
     Foreach ($name in $args) {
-        pip install $name
-        pip freeze | Select-String -Pattern $name -NoEmphasis -Raw | % {$_.replace("==", ">=")} >> requirements.txt
+        if ($name -match "\[.+\]") {
+            $pure_name = $name.split("[")[0]
+            pip install $pure_name
+            pip freeze | Select-String -Pattern $pure_name -NoEmphasis -Raw | % {$_.replace("==", ">=")} >> requirements.txt
+            
+            $before = pip freeze | % {$_.split("`n")}
+            pip install $name
+            $after  = pip freeze | % {$_.split("`n")}
+
+            Foreach ($package in $after){
+                if (!($before.Contains($package))) {
+                    $package.replace("==", ">=") >> requirements.txt
+                }
+            }
+        } 
+        else {
+            pip install $name
+            pip freeze | Select-String -Pattern $name -NoEmphasis -Raw | % {$_.replace("==", ">=")} >> requirements.txt
+        }
+        
     }
 }
