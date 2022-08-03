@@ -3,8 +3,24 @@
 Pipstall - Keep your package dependencies list clean!
 
 ## :computer: Usage
+Installing packages:
 ```
 pipstall <package_name> <package_name> ...
+```
+
+Installing dependencies from `requirements.txt`:
+```
+pipstall -r
+```
+
+Displaying contents of `requirements.txt`:
+```
+pipstall -p
+```
+
+Get help about commands:
+```
+pipstall --help
 ```
 
 ## ⚙️ Installation:
@@ -20,10 +36,6 @@ pipstall <package_name> <package_name> ...
 
 ### Linux:
 1) Go to `/usr/local/bin/` (or any other directory that is available in your path)
-    
-    ```
-    cd /usr/local/bin
-    ```
 2) Download the script
   
     ```
@@ -36,3 +48,6 @@ pipstall <package_name> <package_name> ...
     ```  
 5) Now, you can run `pipstall` anywhere
 
+---
+
+#### ❤️ _Please support the project by giving it a star ⭐️_
