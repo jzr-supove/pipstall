@@ -1,11 +1,53 @@
 #!/usr/bin/bash
 
-if [ $# -eq 0 ]; then
+if [[ $# -eq 0 ]]; then
     echo $'\nProvide at least one Python package name\n'
+    
+elif [[ $# -eq 1 && $1 =~ ^- ]]; then
+
+    if [[ $1 =~ ^(-h|--help)$ ]]; then
+        echo $'Pipstall - Keep your package dependencies list clean\n'
+        echo $'Usage:'
+        echo $'    pipstall <package_name>'
+        echo $'    pipstall <package_name> <package_name> <package_name> ...\n'
+        echo $'Commands:'
+        echo $'    -r, --requirement     Installs dependencies from requirements.txt file'
+        echo $'    -p, --print           Prints contents of requirements.txt file'
+        echo $'    -h, --help            Prints this message\n'
+        echo $'Author: Jasur Yusupov'
+        
+    elif [[ $1 =~ ^(-r|--requirement)$ ]]; then
+        pip install -r requirements.txt
+        
+    elif [[ $1 =~ ^(-p|--print)$ ]]; then
+        cat requirements.txt
+        
+    else
+        echo "Unknown command"
+    fi
+    
 else
     for package in $@
     do
-        pip install $package
-        pip freeze | grep -i $package >> requirements.txt
+        if [[ $package =~ \[.+\] ]]; then
+            pure_name=$(echo "${package}" | cut -d '[' -f1)
+            pip install $pure_name
+            pip freeze | grep -i $pure_name | sed -e 's/==/>=/' >> requirements.txt
+            
+            IFS=$'\n'
+            before=( $(pip freeze) )
+            pip install $package
+            after=( $(pip freeze) )
+
+            for p in $after
+            do
+                if [[ ! " ${before[*]} " =~ " ${p} " ]]; then
+                    echo "${p/==/>=}" >> requirements.txt
+                fi
+            done
+        else
+            pip install $package
+            pip freeze | grep -i $package | sed -e 's/==/>=/' >> requirements.txt
+        fi
     done
 fi
